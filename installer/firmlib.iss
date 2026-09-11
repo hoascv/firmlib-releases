@@ -36,6 +36,10 @@ VersionInfoVersion={#AppVersion}
 DefaultDirName=C:\FirmLibrary
 DirExistsWarning=no
 DefaultGroupName={#AppName}
+; Sem a pagina "escolha a pasta do menu Iniciar": e um passo que nao diz
+; nada a quem instala, e garante que o atalho de desinstalacao fica sempre
+; no mesmo sitio quando for preciso explica-lo ao telefone.
+DisableProgramGroupPage=yes
 UninstallDisplayName={#AppName}
 UninstallDisplayIcon={app}\firmlib.exe
 
