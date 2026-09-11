@@ -1,0 +1,94 @@
+# Constroi o instalador do Windows a partir do firmlib.exe ja publicado numa
+# release, e anexa-o a essa mesma release.
+#
+# Corre sozinho quando uma release e publicada; tambem se pode correr a mao
+# (Actions -> Instalador Windows -> Run workflow) indicando a tag.
+
+name: Instalador Windows
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag da release (ex.: v2.6.1)"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Determinar a tag
+        id: meta
+        shell: pwsh
+        run: |
+          $tag = if ('${{ github.event_name }}' -eq 'release') {
+            '${{ github.event.release.tag_name }}'
+          } else {
+            '${{ inputs.tag }}'
+          }
+          # Inno exige uma versao numerica: v2.6.1 -> 2.6.1
+          $version = $tag -replace '^v', ''
+          "tag=$tag"         | Out-File $env:GITHUB_OUTPUT -Append
+          "version=$version" | Out-File $env:GITHUB_OUTPUT -Append
+
+      - name: Transferir o executavel da release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release download ${{ steps.meta.outputs.tag }} `
+            --repo ${{ github.repository }} `
+            --pattern 'firmlib.exe' --pattern 'checksums.txt' --dir .
+
+      - name: Validar a impressao digital
+        shell: pwsh
+        run: |
+          $expected = (Select-String -Path checksums.txt -Pattern '\s+firmlib\.exe\s*$' |
+                       Select-Object -First 1).Line -replace '\s.*$', ''
+          if (-not $expected) { throw 'checksums.txt sem linha para firmlib.exe' }
+          $actual = (Get-FileHash firmlib.exe -Algorithm SHA256).Hash
+          if ($actual -ne $expected.ToUpper()) {
+            throw "SHA-256 nao corresponde: esperada $expected, obtida $actual"
+          }
+          Write-Host "OK $actual"
+
+      - name: Garantir o Inno Setup
+        shell: pwsh
+        run: |
+          $iscc = 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe'
+          if (-not (Test-Path $iscc)) {
+            choco install innosetup -y --no-progress
+          }
+          if (-not (Test-Path $iscc)) { throw "ISCC.exe nao encontrado em $iscc" }
+          "ISCC=$iscc" | Out-File $env:GITHUB_ENV -Append
+
+      - name: Compilar o instalador
+        shell: pwsh
+        run: |
+          & $env:ISCC /DAppVersion=${{ steps.meta.outputs.version }} `
+                      /DSourceExe=$PWD\firmlib.exe `
+                      installer\firmlib.iss
+
+      - name: Impressao digital do instalador
+        shell: pwsh
+        run: |
+          $h = (Get-FileHash installer\out\firmlib-setup.exe -Algorithm SHA256).Hash.ToLower()
+          "$h  firmlib-setup.exe" | Out-File -Encoding ascii installer\out\firmlib-setup.exe.sha256
+          Write-Host "$h  firmlib-setup.exe"
+
+      - name: Anexar a release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release upload ${{ steps.meta.outputs.tag }} `
+            installer\out\firmlib-setup.exe `
+            installer\out\firmlib-setup.exe.sha256 `
+            --repo ${{ github.repository }} --clobber
