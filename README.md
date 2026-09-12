@@ -53,8 +53,35 @@ firmlib-setup.exe /VERYSILENT /TASKS="service,firewall"
 Todas as versões estão em **[Releases](../../releases/latest)**.
 
 Nos binários soltos, os dados ficam igualmente numa pasta `data` ao lado do
-executável. `firmlib install` / `start` / `stop` / `uninstall` registam-no como
-serviço (Windows), unidade systemd (Linux) ou agente launchd (macOS).
+executável.
+
+### Instalar em macOS ou Linux
+
+O `install.sh` faz o mesmo que o instalador do Windows: escolhe o binário certo
+para a máquina, valida a impressão digital SHA-256, instala, e — se lho pedirem —
+regista o serviço de arranque. Leia-o antes de o correr:
+
+```bash
+curl -fsSL -o install.sh https://raw.githubusercontent.com/hoascv/firmlib-releases/main/install.sh
+less install.sh
+sudo bash install.sh --service
+```
+
+| Opção           | O que faz                                                                  |
+| --------------- | -------------------------------------------------------------------------- |
+| `--service`     | arranca sozinha com o computador (LaunchDaemon em macOS, systemd em Linux)  |
+| `--dir CAMINHO` | pasta de instalação (por omissão `/Applications/FirmLibrary` ou `/opt/firmlib`) |
+| `--uninstall`   | remove o serviço e o executável; a pasta `data` fica                        |
+
+Sem `--service` não é preciso `sudo`, desde que a pasta de instalação seja sua.
+
+O binário de macOS é para **Apple Silicon**; num Mac com processador Intel o
+script diz isso e não instala nada. Não está assinado com um Developer ID, por
+isso um ficheiro trazido por um navegador fica em quarentena — transferido com
+`curl`, como acima, não fica, e o script limpa a marca na mesma.
+
+Depois: `firmlib install` / `start` / `stop` / `uninstall` gerem o serviço, em
+qualquer dos sistemas.
 
 ## Como o instalador é construído
 
