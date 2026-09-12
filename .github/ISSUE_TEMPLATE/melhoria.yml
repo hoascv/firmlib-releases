@@ -1,0 +1,55 @@
+name: Sugerir uma melhoria
+description: Uma ideia para a Biblioteca fazer melhor o trabalho do escritório.
+title: "[Melhoria] "
+labels: ["melhoria"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ### Antes de escrever
+
+        **Este registo é público.** Não escreva nomes de clientes, números de
+        processo, nem títulos ou conteúdos que não queira ver na Internet.
+
+  - type: textarea
+    id: ideia
+    attributes:
+      label: A ideia
+      description: O que gostaria que a Biblioteca passasse a fazer.
+      placeholder: Poder marcar um material como emprestado a outro escritório, sem ser a um membro.
+    validations:
+      required: true
+
+  - type: textarea
+    id: porque
+    attributes:
+      label: Porque ajudaria
+      description: >
+        O trabalho que isto poupava, ou o problema que evitava. É esta parte que
+        costuma decidir se a ideia avança.
+    validations:
+      required: true
+
+  - type: textarea
+    id: como-agora
+    attributes:
+      label: Como resolve isto hoje
+      description: Se já tem uma maneira de contornar, diga qual.
+    validations:
+      required: false
+
+  - type: input
+    id: versao
+    attributes:
+      label: Versão
+      placeholder: "2.11.0"
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: sem-dados
+    attributes:
+      label: Confirmação
+      options:
+        - label: Não incluí dados de clientes nem nada que não possa ser público.
+          required: true

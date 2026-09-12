@@ -1,0 +1,86 @@
+name: Comunicar um problema
+description: Alguma coisa na Biblioteca não está a funcionar como devia.
+title: "[Problema] "
+labels: ["problema"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ### Antes de escrever
+
+        **Este registo é público.** Não escreva nomes de clientes, números de
+        processo, nem títulos ou conteúdos que não queira ver na Internet. Para
+        descrever o problema basta dizer «um material», «um membro», «uma
+        requisição».
+
+  - type: textarea
+    id: o-que-aconteceu
+    attributes:
+      label: O que aconteceu
+      description: Descreva o que viu, com as palavras que quiser.
+      placeholder: Ao gravar um material novo, a página voltou ao início e o material não ficou guardado.
+    validations:
+      required: true
+
+  - type: textarea
+    id: o-que-esperava
+    attributes:
+      label: O que esperava que acontecesse
+    validations:
+      required: false
+
+  - type: textarea
+    id: como-repetir
+    attributes:
+      label: Como repetir
+      description: Os passos que levam ao problema, se souber quais são.
+      placeholder: |
+        1. Abrir o Catálogo
+        2. Clicar em Adicionar material
+        3. ...
+    validations:
+      required: false
+
+  - type: input
+    id: versao
+    attributes:
+      label: Versão
+      description: Está na página Atualizações, e no fim do Manual.
+      placeholder: "2.11.0"
+    validations:
+      required: true
+
+  - type: input
+    id: sistema
+    attributes:
+      label: Sistema
+      placeholder: windows/amd64
+    validations:
+      required: false
+
+  - type: input
+    id: canal
+    attributes:
+      label: Canal de atualizações
+      placeholder: estavel
+    validations:
+      required: false
+
+  - type: textarea
+    id: registo
+    attributes:
+      label: Registo (opcional)
+      description: >
+        A página Registo, na administração, permite transferir o ficheiro.
+        Cole aqui só as linhas da altura do problema — e leia-as primeiro.
+      render: text
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: sem-dados
+    attributes:
+      label: Confirmação
+      options:
+        - label: Não incluí dados de clientes nem nada que não possa ser público.
+          required: true
